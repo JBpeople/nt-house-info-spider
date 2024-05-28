@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "nt-house-info-spider"
+version = "0.1.0"
+description = "南通房产信息爬虫"
+authors = ["YangChangkun"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.2"
+sqlalchemy = "^2.0.30"
+lxml = "^5.2.2"
+loguru = "^0.7.2"
+
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+pre-commit = "^3.7.1"
+isort = "^5.13.2"
+mypy = "^1.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

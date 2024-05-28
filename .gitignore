@@ -1,0 +1,5 @@
+.idea
+.mypy_cache
+*.py[cod]
+*.log
+*.db
