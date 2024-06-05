@@ -48,6 +48,7 @@ class HouseInfo(Base, BaseMixin):  # type: ignore [valid-type, misc]
     unit_price = Column(Integer, nullable=False)
     follower_num = Column(Integer, nullable=False)
     upload_time = Column(String(10), nullable=False)
+    score = Column(Integer, nullable=False)
 
 
 Base.metadata.create_all(engine)

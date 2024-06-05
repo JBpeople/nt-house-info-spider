@@ -18,6 +18,7 @@ class HouseInfoTable(object):
         unit_price: int,
         follower_num: int,
         upload_time: str,
+        score: int,
     ):
         """
         将房屋信息添加到数据库中。
@@ -35,6 +36,7 @@ class HouseInfoTable(object):
             unit_price (int): 房屋单价。
             follower_num (int): 房屋关注人数。
             upload_time (str): 房屋信息上传时间。
+            score (int): 房源评分。
 
         Returns:
             None
@@ -52,6 +54,7 @@ class HouseInfoTable(object):
             unit_price=unit_price,
             follower_num=follower_num,
             upload_time=upload_time,
+            score=score,
         )
         with get_session() as session:  # type: ignore [attr-defined]
             session.add(house_info)

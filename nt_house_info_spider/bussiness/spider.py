@@ -93,6 +93,41 @@ def parse_follow_info(follow_info: str) -> list:
     return [int(follower_num), upload_date]
 
 
+def get_house_score(
+    name: str, floor: str, total_floor: int, house_layout: str, house_area: float, total_price: float, unit_price: int
+) -> int:
+    score = 0
+    # 名称关键词加分
+    name_keywords = ["毛坯", "花园", "院子", "车库", "车位", "没住过", "没有住"]
+    for keyword in name_keywords:
+        if keyword in name:
+            score += 10
+    # 房屋所处楼层加分
+    if floor == "低楼层":
+        score += 20
+    # 房屋总楼层加分
+    if total_floor <= 6:
+        score += 20
+    elif total_floor <= 11:
+        score += 10
+    # 房屋面积结构加分
+    if int(house_layout[0]) >= 3:
+        score += 5
+    # 房屋面积加分
+    if house_area > 80:
+        score += 5
+    # 房屋总价加分
+    if total_price < 100:
+        score += 20
+    elif total_price < 120:
+        score += 10
+    # 房屋单价加分
+    if unit_price < 10000:
+        score += 10
+
+    return score
+
+
 def parse_page(url):
     """
     解析房源页面，获取房源信息并存储至HouseInfoTable对象中
@@ -124,6 +159,15 @@ def parse_page(url):
             unit_price_list = re.findall(unit_price_pat, unit_price_str)
             unit_price = int(unit_price_list[0][0] + unit_price_list[0][1])
 
+            score = get_house_score(
+                name,
+                house_info_list[0],
+                house_info_list[1],
+                house_info_list[2],
+                house_info_list[3],
+                total_price,
+                unit_price,
+            )
             house_info_table.add_one_house_info(
                 pk=pk,
                 name=name,
@@ -137,6 +181,7 @@ def parse_page(url):
                 unit_price=unit_price,
                 follower_num=follow_info_list[0],
                 upload_time=follow_info_list[1],
+                score=score,
             )
 
 

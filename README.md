@@ -73,6 +73,11 @@ poetry install
 poetry run python main.py
 ```
 
+详情页面。
+```bash
+https://nt.ke.com/ershoufang/{pk}.html
+```
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
