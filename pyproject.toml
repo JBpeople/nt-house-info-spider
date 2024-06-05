@@ -6,7 +6,7 @@ authors = ["YangChangkun"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 requests = "^2.32.2"
 sqlalchemy = "^2.0.30"
 lxml = "^5.2.2"

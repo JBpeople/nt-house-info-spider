@@ -42,7 +42,36 @@
 <!-- ABOUT THE PROJECT -->
 ## 关于项目
 
-为了细致了解南通地区的房产信息，使用Python编写爬虫抓取数据，存入本地数据库。
+![Product Name Screen Shot][product-screenshot]
+
+为了细致了解南通地区的房产信息，使用Python编写多线程爬虫抓取数据，存入SQLite本地数据库。
+
+## 快速开始
+
+安装 `poetry` 环境。
+```bash
+pip install poetry
+```
+
+克隆当前项目。
+```bash
+git clone https://github.com/JBpeople/nt-house-info-spider.git
+```
+
+进入项目目录。
+```bash
+cd nt-house-info-spider
+```
+
+安装依赖。
+```bash
+poetry install
+```
+
+运行爬虫。
+```bash
+poetry run python main.py
+```
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -57,7 +86,7 @@
 [issues-url]: https://github.com/JBpeople/nt-house-info-spider/issues
 [license-shield]: https://img.shields.io/github/license/JBpeople/nt-house-info-spider.svg?style=for-the-badge
 [license-url]: https://github.com/JBpeople/nt-house-info-spider/blob/master/LICENSE.txt
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: docs/images/product-screenshot.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
