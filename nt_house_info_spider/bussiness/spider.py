@@ -1,5 +1,6 @@
+import queue
 import re
-from queue import Queue
+import threading
 
 import lxml
 import lxml.etree
@@ -9,21 +10,22 @@ from nt_house_info_spider.db.house_info_table import HouseInfoTable
 from nt_house_info_spider.log import logger
 from nt_house_info_spider.static import constant
 
-URL_QUEUE: Queue = Queue()
 
-
-def get_pages_url():
+def get_pages_url() -> queue.Queue | None:
     """
-    获取房源列表页的所有页面URL并放入队列中
-
-    Args:
-        无参数
+    获取房源页面的url列表，并存入队列中返回
 
     Returns:
-        无返回值，将获取到的页面URL放入URL_QUEUE队列中
+        Optional[Queue]: 包含房源页面url的队列，若获取总页数失败则返回None
 
     """
-    response = requests.get(constant.URL)
+    url_queue: queue.Queue = queue.Queue()
+    header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/92.0.4515.107 Safari/537.36",
+    }
+
+    response = requests.get(constant.URL, headers=header)
     html = lxml.etree.HTML(response.text)
     res = html.xpath('//div[@class="page-box house-lst-page-box"]/@page-data')
     try:
@@ -32,10 +34,11 @@ def get_pages_url():
         logger.info(f"------> 获取总页数成功{page_num}")
     except IndexError:
         logger.error("-----> 获取总页数失败")
-        return
+        return None
     for i in range(1, page_num + 1):
         url = constant.URL + f"pg{i}/"
-        URL_QUEUE.put(url)
+        url_queue.put(url)
+    return url_queue
 
 
 def parse_house_info(house_info: str) -> list:
@@ -67,8 +70,10 @@ def parse_house_info(house_info: str) -> list:
 def parse_follow_info(follow_info: str) -> list:
     """
     从关注信息字符串中解析出关注人数、发布时间、发布人姓名和发布人ID，并返回包含这些信息的列表。
+
     Args:
         follow_info (str): 包含关注信息的字符串。
+
     Returns:
         list: 包含关注人数、发布时间、发布人姓名和发布人ID的列表，元素依次为整型、字符串类型、字符串类型和字符串类型。
     """
@@ -100,7 +105,6 @@ def parse_page(url):
 
     """
     house_info_table = HouseInfoTable()
-
     response = requests.get(url)
     html = lxml.etree.HTML(response.text)
     res = html.xpath('//li[@class="clear"]')
@@ -114,9 +118,7 @@ def parse_page(url):
         if house_info_list:
             follow_info_str = item.xpath('.//div[@class="followInfo"]/text()')[1]
             follow_info_list = parse_follow_info(follow_info_str)
-            total_price = float(
-                item.xpath('.//div[@class="totalPrice totalPrice2"]/span/text()')[0]
-            )
+            total_price = float(item.xpath('.//div[@class="totalPrice totalPrice2"]/span/text()')[0])
             unit_price_str = item.xpath('.//div[@class="unitPrice"]/span/text()')[0]
             unit_price_pat = r"(\d+),(\d+)"
             unit_price_list = re.findall(unit_price_pat, unit_price_str)
@@ -138,21 +140,52 @@ def parse_page(url):
             )
 
 
-def start():
+def worker(url_queue: queue.Queue):
     """
-    执行爬虫主程序
+    从url_queue中获取URL并解析页面
 
     Args:
-        无参数
+        url_queue (queue.Queue): 存储待解析URL的队列
 
     Returns:
-        无返回值
+        None
 
     """
+    url = ""
+    while not url_queue.empty():
+        try:
+            url = url_queue.get_nowait()  # 非阻塞获取URL
+            logger.info(f"------> 开始解析URL：{url}")
+            parse_page(url)  # 调用页面解析函数
+        except queue.Empty:
+            break  # 队列为空时退出循环
+        except Exception as e:
+            logger.error(f"解析URL {url} 时出错: {e}")
+            url_queue.put(url)  # 出错时重新放入队列
 
-    get_pages_url()
-    while URL_QUEUE.empty() is False:
-        url = URL_QUEUE.get()
-        logger.info(f"------> 开始解析URL：{url}")
-        parse_page(url)
+
+def start(num_threads: int):
+    """
+    启动多线程爬虫程序
+
+    Args:
+        num_threads (int): 线程数量
+
+    Returns:
+        None
+    """
+    url_queue = get_pages_url()  # 获取URL队列
+    threads = []
+
+    # 创建并启动线程
+    if url_queue:
+        for _ in range(num_threads):
+            t = threading.Thread(target=worker, args=(url_queue,))
+            threads.append(t)
+            t.start()
+
+    # 等待所有线程完成
+    for t in threads:
+        t.join()
+
     logger.info("------> 爬虫结束")

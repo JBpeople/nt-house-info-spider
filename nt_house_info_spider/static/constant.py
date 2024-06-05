@@ -1,5 +1,5 @@
 # 数据库配置
-SQLALCHEMY_DATABASE_URI = "sqlite:///nt_house_info_spider/db/data.db"
+SQLALCHEMY_DATABASE_URI = "sqlite:///db/data.db"
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_POOL_SIZE = 50
 SQLALCHEMY_POOL_MAX_SIZE = 100
